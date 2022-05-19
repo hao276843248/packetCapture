@@ -15,10 +15,11 @@ class PackData():
     Caplen = 1
     thisZone = 1
     SigFigs = 1
-
     data = None
     fileSize = 0
     PacketData = 0
+
+    nextPacketlist = []
 
     def __init__(self, filePath):
         self.fileSize = os.path.getsize(filePath)  # 获得文件大小
@@ -32,6 +33,9 @@ class PackData():
         print(time.strftime("%Y-%m-%d %H:%M:%S", t))
         self.data
 
+    def randNextPacket(self, start, index):
+        self.data[start:self.nextPacketlist[index]]
+
     def readPacket(self, pData):
         tT = time.localtime(int(pData[:4][::self.endianness].hex(), 16))
         tL = time.localtime(int(pData[4:8][::self.endianness].hex(), 16))
@@ -40,6 +44,7 @@ class PackData():
         Caplen = int(pData[8:12][::self.endianness].hex(), 16)
         Len = int(pData[12:16][::self.endianness].hex(), 16)
         data = pData[16:Caplen][::self.endianness].hex()
+        self.nextPacketlist.append(Caplen)
 
     def close(self):
         self.data.close()
