@@ -1,36 +1,37 @@
-import json
-import random
-import re
+import mmap
+import os
+import struct
+
+
+def readMMAP(f, filepath):
+    with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as m:
+        size = os.path.getsize(filepath)  # 获得文件大小
+        hexs = ""
+        ints = ""
+        print()
+        for i in range(16):
+            data = m.read(1)
+            # 10进制
+            ints += str(struct.unpack("B", data)[0]) + "\t"
+            # hex 格式 16进制
+            hexs += data.hex() + "\t"
+        hexs += "\n"
+        ints += "\n"
+        # 读取文件的光标偏移到结尾的前16个字节
+        m.seek(size - 16)
+        for i in range(16):
+            data = m.read(1)
+            # 10进制
+            ints += str(struct.unpack("B", data)[0]) + "\t"
+            # hex 格式 16进制
+            hexs += data.hex() + "\t"
+        print(hexs.upper())
+        print()
+        print(ints.upper())
+
 
 if __name__ == '__main__':
-
-    with open("../data/急性腹膜炎.txt", "r", encoding="utf-8") as f:
-        read = f.read()
-    p = re.findall(r'[a-z]\'[a-z]', read)
-    sp = set(p)
-    print(sp)
-    sp_dict = {}
-    for i in sp:
-        random_random = random.random()
-        print(random_random)
-        sp_dict[str(random_random)] = i
-        read = read.replace(i, str(random_random))
-    read = read.replace("\"", "*78545*")
-    read = read.replace("'", "\"")
-    read = read.replace("*78545*", "'")
-    read = read.replace(": '", ": \"")
-    read = read.replace("'}", "\"}")
-
-    for k, v in sp_dict.items():
-        read = read.replace(k, v)
-    split = read.split("][")
-    res = []
-    if (len(split) > 1):
-        for i, data in enumerate(split):
-            if i / 2 == 0:
-                res.append(json.loads(data + "]"))
-            else:
-                res.append(json.loads("[" + data))
-    else:
-        res.append(json.loads(split[0]))
-    print(res)
+    filepath = "../data/11652106806_.pic.jpg"
+    # 二进制格式读取
+    with open(filepath, "rb") as f:
+        readMMAP(f,filepath)
